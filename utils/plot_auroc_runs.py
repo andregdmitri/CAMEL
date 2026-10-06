@@ -143,10 +143,11 @@ def add_model_bars(fig, summary, data, *, row=None, col=None):
         fig.add_trace(scatter_trace)
         fig.update_xaxes(
             categoryorder="array", categoryarray=labels, tickangle=-25,
-            showline=True, linewidth=1.5, linecolor="black"
+            tickfont_size=18, showline=True, linewidth=1.5, linecolor="black"
         )
         fig.update_yaxes(
-            title_text="AUROC", range=[0.5, 1.05], dtick=0.2, # Y-axis starts at 0.5 to match reference visual
+            title_text="AUROC", range=[0, 1.05], dtick=0.2, # Y-axis starts at 0.5 to match reference visual
+            tickfont_size=18, title_font_size=20,
             showline=True, linewidth=1.5, linecolor="black"
         )
     else:
@@ -154,10 +155,11 @@ def add_model_bars(fig, summary, data, *, row=None, col=None):
         fig.add_trace(scatter_trace, row=row, col=col)
         fig.update_xaxes(
             categoryorder="array", categoryarray=labels, tickangle=-45, 
-            showline=True, linewidth=1.5, linecolor="black", row=row, col=col
+            tickfont_size=16, showline=True, linewidth=1.5, linecolor="black", row=row, col=col
         )
         fig.update_yaxes(
-            title_text="AUROC", range=[0.5, 1.05], dtick=0.2, 
+            title_text="AUROC", range=[0.0, 1.05], dtick=0.2, 
+            tickfont_size=16, title_font_size=20,
             showline=True, linewidth=1.5, linecolor="black", row=row, col=col
         )
 
@@ -173,7 +175,7 @@ def make_dataset_chart(dataset, runs, output_dir):
     add_model_bars(fig, summary, data) # Passed raw data here
 
     fig.update_layout(
-        title={"text": f"Mean validation AUROC by model: {dataset.upper()}", "x": 0.04},
+        title={"text": f"Mean validation AUROC by model: {dataset.upper()}", "x": 0.04, "font": {"size": 28}},
         template="plotly_white",
         width=1000,
         height=600,
@@ -182,16 +184,22 @@ def make_dataset_chart(dataset, runs, output_dir):
         showlegend=False,
         plot_bgcolor="white",
         paper_bgcolor="white",
-        font={"family": "Arial, sans-serif", "size": 14, "color": "black"},
+        font={"family": "Arial, sans-serif", "size": 20, "color": "black"},
     )
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    png_path = output_dir / f"auroc_mean_{dataset}.png"
+    # png_path = output_dir / f"auroc_mean_{dataset}.png"
     pdf_path = output_dir / f"auroc_mean_{dataset}.pdf"
-    
-    fig.write_image(png_path, width=1000, height=600, scale=2)
-    fig.write_image(pdf_path, width=1000, height=600)
-    print(f"[saved] {png_path}")
+    fig.write_image(
+        str(pdf_path),
+        format="pdf",
+        width=1600,
+        height=1000,
+        scale=1,
+    )
+    # fig.write_image(png_path, width=1000, height=600, scale=2)
+    # fig.write_image(pdf_path, format="pdf", width=1000, height=600)
+    # print(f"[saved] {png_path}")
     print(f"[saved] {pdf_path}")
 
     run_counts = data.groupby("model")["seed"].nunique().to_dict()
@@ -215,7 +223,7 @@ def make_combined_chart(runs, output_dir):
         add_model_bars(fig, summarize_auroc(data), data, row=row + 1, col=col + 1)
 
     fig.update_layout(
-        title={"text": "Mean validation AUROC by model and dataset", "x": 0.04},
+        title={"text": "Mean validation AUROC by model and dataset", "x": 0.04, "font": {"size": 26}},
         template="plotly_white",
         width=1600,
         height=1000,
@@ -224,14 +232,21 @@ def make_combined_chart(runs, output_dir):
         showlegend=False,
         plot_bgcolor="white",
         paper_bgcolor="white",
-        font={"family": "Arial, sans-serif", "size": 12, "color": "black"},
+        font={"family": "Arial, sans-serif", "size": 18, "color": "black"},
     )
-    png_path = output_dir / "auroc_mean_all_datasets.png"
+    fig.update_annotations(font_size=40)
+    # png_path = output_dir / "auroc_mean_all_datasets.png"
     pdf_path = output_dir / "auroc_mean_all_datasets.pdf"
     
-    fig.write_image(png_path, width=1600, height=1000, scale=2)
-    fig.write_image(pdf_path, width=1600, height=1000)
-    print(f"[saved] {png_path}")
+    # fig.write_image(png_path, format="png", width=1600, height=1000, scale=2)
+    fig.write_image(
+        str(pdf_path),
+        format="pdf",
+        width=1600,
+        height=1000,
+        scale=1,
+    )
+    # print(f"[saved] {png_path}")
     print(f"[saved] {pdf_path}")
 
 

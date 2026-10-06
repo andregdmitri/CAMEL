@@ -38,7 +38,7 @@ from pathlib import Path
 
 import matplotlib
 
-matplotlib.use("Agg")
+matplotlib.use("pdf")
 
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
@@ -423,14 +423,18 @@ def main(argv: list[str] | None = None) -> None:
 
     out_dir = Path(args.output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    png_path = out_dir / "cd_diagram.pdf"
+    pdf_path = out_dir / "cd_diagram.pdf"
     csv_path = out_dir / "cd_diagram_summary.csv"
-
-    fig.savefig(png_path, dpi=300, bbox_inches="tight")
+    fig.savefig(
+        pdf_path,
+        format="pdf",
+        bbox_inches="tight",
+        facecolor="white",
+    )
     summary.to_dataframe().to_csv(csv_path, index=False)
     plt.close(fig)
 
-    print(f"\n[\u2713] Figure saved to {png_path}")
+    print(f"\n[\u2713] Figure saved to {pdf_path}")
     print(f"[\u2713] Pairwise summary saved to {csv_path}")
 
 

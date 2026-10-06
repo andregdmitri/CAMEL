@@ -221,7 +221,14 @@ def make_dataset_plot(dataset, frame, output_dir):
     pdf_path = output_dir / f"efficiency_{dataset}.pdf"
     # html_path = output_dir / f"efficiency_{dataset}.html"
     
-    fig.write_image(pdf_path, scale=2)
+    # fig.write_image(pdf_path, format="pdf", scale=2)
+    fig.write_image(
+        str(pdf_path),
+        format="pdf",
+        width=1600,
+        height=1000,
+        scale=1,
+    )
     # fig.write_html(html_path)
     print(f"[✓] Saved PDF: {pdf_path}")
     # print(f"[✓] Saved HTML: {html_path}")
