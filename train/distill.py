@@ -10,6 +10,9 @@ from config.constants import *
 from models.retfound import RETFoundBackbone
 from models.vmamba_backbone import VisualMamba
 from models.tinyvit import TinyViTStudent
+from models.mobilenet import MobileNetStudent
+from models.efficientnet import EfficientNetStudent
+from models.unet import UNetStudent
 from models.dist import DistillationModule
 from dataloader import get_dataloader
 
@@ -37,6 +40,19 @@ def build_tinyvit_student(args):
         pretrained=False,
     )
 
+CNN_STUDENTS = {
+    "mobilenet": MobileNetStudent,
+    "efficientnet": EfficientNetStudent,
+    "unet": UNetStudent,
+}
+
+def build_cnn_student(student_type, args):
+    """Initializes a CNN student backbone (supports MAE-style masking)."""
+    return CNN_STUDENTS[student_type](
+        img_size=IMG_SIZE,
+        mask_ratio=args.mask_ratio or MASK_RATIO,
+    )
+
 def build_teacher():
     """Initializes and freezes the RETFound teacher."""
     path = os.path.join(CHECKPOINT_DIR, "RETFound_cfp_weights.pth")
@@ -57,6 +73,8 @@ def run_distillation(args):
     teacher = build_teacher()
     if student_type == "tinyvit":
         student = build_tinyvit_student(args)
+    elif student_type in CNN_STUDENTS:
+        student = build_cnn_student(student_type, args)
     else:
         student = build_student(args)
 

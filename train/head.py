@@ -10,9 +10,18 @@ from utils.transforms import build_train_transform, eval_transform
 from config.constants import *
 from models.vmamba_backbone import VisualMamba
 from models.tinyvit import TinyViTStudent
+from models.mobilenet import MobileNetStudent
+from models.efficientnet import EfficientNetStudent
+from models.unet import UNetStudent
 from dataloader import get_dataloader, get_class_weights
 from optimizers.optimizer import warmup_cosine_optimizer
 from train.prune import apply_structured_pruning, apply_dynamic_quantization
+
+CNN_STUDENTS = {
+    "mobilenet": MobileNetStudent,
+    "efficientnet": EfficientNetStudent,
+    "unet": UNetStudent,
+}
 
 class VMambaHeadTask(pl.LightningModule):
     def __init__(self, backbone, lr, class_weights=None):
@@ -128,6 +137,38 @@ class VMambaHeadTask(pl.LightningModule):
         )
         return {"optimizer": optimizer, "lr_scheduler": scheduler}
 
+@torch.no_grad()
+def evaluate_classifier(model, dataloader, stage, device):
+    """Compute acc/f1/auroc/aupr of `model` over `dataloader` without the Lightning loop."""
+    metric_args = {"task": "multiclass", "num_classes": NUM_CLASSES}
+    metrics = {
+        "acc": Accuracy(**metric_args),
+        "f1": F1Score(**metric_args, average="macro"),
+        "auroc": AUROC(**metric_args),
+        "aupr": AveragePrecision(**metric_args),
+    }
+    model = model.to(device).eval()
+    use_amp = device == "cuda"
+    for x, y, _ in dataloader:
+        x = x.to(device)
+        with torch.autocast(device_type=device, dtype=torch.float16, enabled=use_amp):
+            logits = model(x)
+        probs = torch.softmax(logits.float(), dim=1).cpu()
+        preds = probs.argmax(dim=1)
+        metrics["acc"].update(preds, y)
+        metrics["f1"].update(preds, y)
+        metrics["auroc"].update(probs, y)
+        metrics["aupr"].update(probs, y)
+
+    out = {}
+    for name, m in metrics.items():
+        try:
+            out[f"{stage}/{name}"] = m.compute().item()
+        except Exception:
+            pass
+    return out
+
+
 # -----------------------------------------------------------
 #  Training Entry Point
 # -----------------------------------------------------------
@@ -141,6 +182,8 @@ def run_head_training(args):
     # 1. Backbone Loading logic
     if student_type == "tinyvit":
         backbone = TinyViTStudent(model_name=TINYVIT_MODEL, pretrained=False)
+    elif student_type in CNN_STUDENTS:
+        backbone = CNN_STUDENTS[student_type](img_size=IMG_SIZE, mask_ratio=0.0)
     else:
         backbone = VisualMamba(
             img_size=IMG_SIZE, patch_size=PATCH_SIZE, in_chans=IN_CHANS,
@@ -228,52 +271,17 @@ def run_head_training(args):
     torch.save(final_dict, save_path)
     print(f"[✓] Model saved to {save_path}")
 
-    # load best weights into model and compute metrics
+    # Evaluate the model exactly as saved (pruned/quantized included); quantized layers are CPU-only.
     try:
-        model.load_state_dict(best_ckpt, strict=False)
-        dm.setup(stage="fit")
-
         train_dl = dm.train_dataloader()
         val_dl = dm.val_dataloader()
-
-        # ---- ENABLE FINAL EVAL MODE (prevents reset) ----
-        model._final_eval = True
-
-        # Reset before starting
-        for m in model.train_metrics.values():
-            m.reset()
-        for m in model.val_metrics.values():
-            m.reset()
-
-        # ---- VAL METRICS (real validation) ----
-        trainer.validate(model, dataloaders=val_dl)
-
-        val_metrics = {
-            "val/acc": model.val_metrics["acc"].compute().item(),
-            "val/f1": model.val_metrics["f1"].compute().item(),
-            "val/auroc": model.val_metrics["auroc"].compute().item(),
-            "val/aupr": model.val_metrics["aupr"].compute().item(),
-        }
-
-        # Reset again
-        for m in model.train_metrics.values():
-            m.reset()
-        for m in model.val_metrics.values():
-            m.reset()
-
-        # ---- TRAIN METRICS (use TEST LOOP!) ----
-        trainer.test(model, dataloaders=train_dl)
-
-        train_metrics = {
-            "train/acc": model.train_metrics["acc"].compute().item(),
-            "train/f1": model.train_metrics["f1"].compute().item(),
-            "train/auroc": model.train_metrics["auroc"].compute().item(),
-            "train/aupr": model.train_metrics["aupr"].compute().item(),
-        }
-
-        model._final_eval = False
-    except Exception as e:
-        print(f"[!] Metric computation failed: {e}")
+        device = "cpu" if args.quantize or not torch.cuda.is_available() else "cuda"
+        train_metrics = evaluate_classifier(model, train_dl, "train", device)
+        val_metrics = evaluate_classifier(model, val_dl, "val", device)
+    except Exception:
+        import traceback
+        traceback.print_exc()
+        print("[!] Metric computation failed")
         val_metrics = {}
         train_metrics = {}
 
@@ -295,5 +303,5 @@ def run_head_training(args):
             "val_metrics": val_metrics if isinstance(val_metrics, dict) else {},
         }
         append_result(row)
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[!] Failed to append result to CSV: {e}")

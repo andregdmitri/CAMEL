@@ -5,7 +5,17 @@ import pytorch_lightning as pl
 from torchmetrics import Accuracy, AUROC, F1Score, AveragePrecision
 
 from config.constants import *
+from models.cnn_student import MaskedCNNStudent
 from optimizers.optimizer import warmup_cosine_optimizer
+
+
+class EfficientNetStudent(MaskedCNNStudent):
+    """EfficientNet-B0 student for masked RETFound distillation."""
+
+    def __init__(self, model_name="efficientnet_b0", pretrained=False,
+                 img_size=IMG_SIZE, grid_patch_size=16, mask_ratio=0.0):
+        backbone = timm.create_model(model_name, pretrained=pretrained, num_classes=0, global_pool="")
+        super().__init__(backbone, img_size, grid_patch_size, mask_ratio)
 
 
 class EfficientNetClassifier(pl.LightningModule):

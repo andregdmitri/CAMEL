@@ -70,9 +70,10 @@ DEFAULT_OUTPUT_DIR = ROOT / "images" / "friedman_neminy"
 # Display names already used by plot_auroc_runs.py / plot_efficiency_from_csv.py
 MODE_TO_MODEL = {
     "mobilenet": "MobileNet",
+    "dmobilenet": "MobileNet-D",
     "efficientnet": "EfficientNet",
     "vmamba": "VMamba",
-    "dvmamba": "LEMUR",
+    "dvmamba": "VMamba-D",
     "unet": "UNet",
     "retfound_finetune": "RETFound",
     "tinyvit": "TinyViT",
@@ -80,17 +81,18 @@ MODE_TO_MODEL = {
 }
 MODEL_ORDER = [
     "MobileNet",
+    "MobileNet-D",
     "EfficientNet",
-    "VMamba",
-    "LEMUR",
     "UNet",
-    "RETFound",
+    "VMamba",
+    "VMamba-D",
     "TinyViT",
     "TinyViT-D",
+    "RETFound",
 ]
 
 # The proposed method, highlighted in the CD diagram by default.
-DEFAULT_HIGHLIGHT = ["LEMUR"]
+DEFAULT_HIGHLIGHT = ["VMamba-D"]
 
 POSTHOC_LABELS = {"nemenyi": "Nemenyi", "holm": "Wilcoxon-Holm"}
 

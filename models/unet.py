@@ -4,6 +4,7 @@ import pytorch_lightning as pl
 from torchmetrics import Accuracy, AUROC, F1Score, AveragePrecision
 
 from config.constants import *
+from models.cnn_student import MaskedCNNStudent
 from optimizers.optimizer import warmup_cosine_optimizer
 
 
@@ -66,6 +67,18 @@ class UNetEncoder(nn.Module):
         x4 = self.down3(x3)
         x5 = self.down4(x4)
         return x5
+
+
+class UNetStudent(MaskedCNNStudent):
+    """U-Net encoder student for masked RETFound distillation."""
+
+    def __init__(self, in_channels=IN_CHANS, base_channels=32,
+                 img_size=IMG_SIZE, grid_patch_size=16, mask_ratio=0.0, **_):
+        backbone = UNetEncoder(in_channels=in_channels, base_channels=base_channels)
+        super().__init__(backbone, img_size, grid_patch_size, mask_ratio)
+
+    def _feature_map(self, x):
+        return self.backbone(x)
 
 
 class UNetClassifier(pl.LightningModule):

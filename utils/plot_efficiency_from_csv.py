@@ -16,46 +16,74 @@ DEFAULT_OUTPUT = ROOT / "images" / "efficiency_by_dataset"
 
 MODEL_NAMES = {
     "mobilenet": "MobileNet",
+    "dmobilenet": "MobileNet-D",
     "efficientnet": "EfficientNet",
     "vmamba": "VMamba",
-    "dvmamba": "LEMUR",
+    "dvmamba": "VMamba-D",
     "unet": "UNet",
+    "tinyvit": "TinyViT",
+    "dtinyvit": "TinyViT-D",
     "retfound_finetune": "RETFound",
-    "tinyvit": "TinyVit",
-    "dtinyvit": "TinyVit-D",
 }
+
+MODEL_ORDER = [
+    "MobileNet",
+    "MobileNet-D",
+    "EfficientNet",
+    "UNet",
+    "VMamba",
+    "VMamba-D",
+    "TinyViT",
+    "TinyViT-D",
+    "RETFound",
+]
 
 GFLOPS = {
     "MobileNet": 0.111,
+    "MobileNet-D": 0.111,
     "EfficientNet": 0.769,
     "VMamba": 0.476,
-    "LEMUR": 0.476,
+    "VMamba-D": 0.476,
     "UNet": 6.561,
+    "TinyViT": 2.510,
+    "TinyViT-D": 2.510,
     "RETFound": 119.292,
-    "TinyVit": 2.510,
-    "TinyVit-D": 2.510,
 }
 
 PARAMS_M = {
     "MobileNet": 1.522981,
+    "MobileNet-D": 1.522981,
     "EfficientNet": 4.013953,
     "VMamba": 5.018949,
-    "LEMUR": 5.018949,
+    "VMamba-D": 5.018949,
     "UNet": 4.846821,
+    "TinyViT": 5.073,
+    "TinyViT-D": 5.073,
     "RETFound": 303.331882,
-    "TinyVit": 5.073,
-    "TinyVit-D": 5.073,
 }
 
 TEXT_POSITIONS = {
-    "MobileNet": "bottom right",
+    "MobileNet": "top right",
+    "MobileNet-D": "bottom right",
     "EfficientNet": "top left",
     "VMamba": "bottom center",
-    "LEMUR": "top center",
+    "VMamba-D": "top center",
     "UNet": "top center",
+    "TinyViT": "bottom center",
+    "TinyViT-D": "top center",
     "RETFound": "bottom center",
-    "TinyVit": "top center",
-    "TinyVit-D": "bottom center",
+}
+
+MODEL_COLORS = {
+    "MobileNet": "#D81B60",
+    "MobileNet-D": "#D81B60",
+    "EfficientNet": "#97D6CC",
+    "UNet": "#374D1F",
+    "VMamba": "#1E88E5",
+    "VMamba-D": "#1E88E5",
+    "TinyViT": "#FFC107",
+    "TinyViT-D": "#FFC107",
+    "RETFound": "#F80BD1",
 }
 
 # ==========================================
@@ -123,6 +151,8 @@ def make_dataset_plot(dataset, frame, output_dir):
         y="median_auroc",
         size="Parameters (M)",
         color="model",
+        color_discrete_map=MODEL_COLORS,
+        category_orders={"model": MODEL_ORDER},
         text="Label",
         log_x=True,
         size_max=70,  # Matched to the new styling script

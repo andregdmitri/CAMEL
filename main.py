@@ -109,7 +109,7 @@ Examples:
                         help="Override teacher checkpoint path")
 
     parser.add_argument("--student", type=str, default="vmamba",
-                        choices=["vmamba", "tinyvit"],
+                        choices=["vmamba", "tinyvit", "mobilenet", "efficientnet", "unet"],
                         help="Student architecture for distillation (Phase I)")
 
     parser.add_argument("--load_backbone", type=str, default=None,
