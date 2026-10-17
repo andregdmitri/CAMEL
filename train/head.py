@@ -9,6 +9,7 @@ from torchmetrics import Accuracy, F1Score, AUROC, AveragePrecision
 from utils.transforms import build_train_transform, eval_transform
 from config.constants import *
 from models.vmamba_backbone import VisualMamba
+from models.vmamba3_backbone import VisualMamba3
 from models.tinyvit import TinyViTStudent
 from models.mobilenet import MobileNetStudent
 from models.efficientnet import EfficientNetStudent
@@ -184,6 +185,12 @@ def run_head_training(args):
         backbone = TinyViTStudent(model_name=TINYVIT_MODEL, pretrained=False)
     elif student_type in CNN_STUDENTS:
         backbone = CNN_STUDENTS[student_type](img_size=IMG_SIZE, mask_ratio=0.0)
+    elif student_type == "vmamba3":
+        backbone = VisualMamba3(
+            img_size=IMG_SIZE, patch_size=PATCH_SIZE, in_chans=IN_CHANS,
+            embed_dim=VMAMBA_EMBED_DIM, depth=VMAMBA_DEPTH,
+            learning_rate=0.0, mask_ratio=0.0, use_cls_token=False,
+        )
     else:
         backbone = VisualMamba(
             img_size=IMG_SIZE, patch_size=PATCH_SIZE, in_chans=IN_CHANS,

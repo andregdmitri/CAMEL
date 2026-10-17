@@ -15,6 +15,7 @@ from models.mobilenet import MobileNetClassifier
 from models.efficientnet import EfficientNetClassifier
 from models.unet import UNetClassifier
 from models.vmamba import VMambaClassifier
+from models.vmamba3 import VMamba3Classifier
 from models.tinyvit import TinyViTClassifier
 from models.retfound import RETFoundBackbone
 
@@ -23,6 +24,7 @@ MODEL_REGISTRY = {
     "efficientnet": EfficientNetClassifier,
     "unet": UNetClassifier,
     "vmamba": VMambaClassifier,
+    "vmamba3": VMamba3Classifier,
     "tinyvit": TinyViTClassifier,
     "retfound": RETFoundTask,  # Placeholder for RETFound model, to be implemented
 }

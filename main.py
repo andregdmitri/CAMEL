@@ -85,6 +85,7 @@ Examples:
             "efficientnet",
             "unet",
             "vmamba",
+            "vmamba3",
             "tinyvit",
         ],
         help="Which pipeline to run"
@@ -109,7 +110,7 @@ Examples:
                         help="Override teacher checkpoint path")
 
     parser.add_argument("--student", type=str, default="vmamba",
-                        choices=["vmamba", "tinyvit", "mobilenet", "efficientnet", "unet"],
+                        choices=["vmamba", "vmamba3", "tinyvit", "mobilenet", "efficientnet", "unet"],
                         help="Student architecture for distillation (Phase I)")
 
     parser.add_argument("--load_backbone", type=str, default=None,

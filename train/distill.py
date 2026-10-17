@@ -9,6 +9,7 @@ from utils.transforms import build_train_transform, eval_transform
 from config.constants import *
 from models.retfound import RETFoundBackbone
 from models.vmamba_backbone import VisualMamba
+from models.vmamba3_backbone import VisualMamba3
 from models.tinyvit import TinyViTStudent
 from models.mobilenet import MobileNetStudent
 from models.efficientnet import EfficientNetStudent
@@ -23,6 +24,19 @@ from dataloader import get_dataloader
 def build_student(args):
     """Initializes the VMamba student backbone."""
     return VisualMamba(
+        img_size=IMG_SIZE,
+        patch_size=PATCH_SIZE,
+        in_chans=IN_CHANS,
+        embed_dim=VMAMBA_EMBED_DIM,
+        depth=VMAMBA_DEPTH,
+        learning_rate=args.lr or LR,
+        mask_ratio=args.mask_ratio or MASK_RATIO,
+        use_cls_token=False
+    )
+
+def build_vmamba3_student(args):
+    """Initializes the Mamba-3 (Vim-style) student backbone."""
+    return VisualMamba3(
         img_size=IMG_SIZE,
         patch_size=PATCH_SIZE,
         in_chans=IN_CHANS,
@@ -75,6 +89,8 @@ def run_distillation(args):
         student = build_tinyvit_student(args)
     elif student_type in CNN_STUDENTS:
         student = build_cnn_student(student_type, args)
+    elif student_type == "vmamba3":
+        student = build_vmamba3_student(args)
     else:
         student = build_student(args)
 

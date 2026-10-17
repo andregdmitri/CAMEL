@@ -10,6 +10,7 @@ from pytorch_lightning.loggers import WandbLogger
 from utils.transforms import eval_transform
 from config.constants import *
 from models.vmamba_backbone import VisualMamba
+from models.vmamba3_backbone import VisualMamba3
 from dataloader.idrid import IDRiDModule
 from dataloader.aptos import APTOSModule
 from utils.flops import compute_flops
@@ -21,7 +22,8 @@ def run_evaluation(args):
     # -------------------------------------------------
     # 1. Reconstruct Model Structure
     # -------------------------------------------------
-    backbone = VisualMamba(
+    backbone_cls = VisualMamba3 if getattr(args, "student", "vmamba") == "vmamba3" else VisualMamba
+    backbone = backbone_cls(
         img_size=IMG_SIZE,
         patch_size=PATCH_SIZE,
         in_chans=IN_CHANS,

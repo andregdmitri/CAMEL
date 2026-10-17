@@ -20,6 +20,10 @@ VMAMBA_EMBED_DIM = int(os.getenv('VMAMBA_EMBED_DIM', 64)) # projector -> teacher
 SSM_DIM = int(os.getenv('SSM_DIM', 8)) # spatial mixing module dimension ### 4, 8, 16, 32
 EXPAND_DIM = int(os.getenv('EXPAND_DIM', VMAMBA_EMBED_DIM * 2)) ### 128, 256, 512
 PATCH_SIZE = int(os.getenv('PATCH_SIZE', 32)) 
+MAMBA3_HEADDIM = int(os.getenv('MAMBA3_HEADDIM', 32)) # must divide EXPAND_DIM
+MAMBA3_MIMO = os.getenv('MAMBA3_MIMO', 'False') == 'True'
+MAMBA3_MIMO_RANK = int(os.getenv('MAMBA3_MIMO_RANK', 4))
+MAMBA3_ROPE_FRACTION = float(os.getenv('MAMBA3_ROPE_FRACTION', 0.5)) # 0.5 or 1.0
 TEACHER_EMBED_DIM = int(os.getenv('TEACHER_EMBED_DIM', 1024))
 TINYVIT_MODEL = os.getenv('TINYVIT_MODEL', 'tiny_vit_5m_224')
 NUM_WORKERS = int(os.getenv('NUM_WORKERS', 32))
