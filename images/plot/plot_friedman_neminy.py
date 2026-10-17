@@ -72,9 +72,11 @@ MODE_TO_MODEL = {
     "mobilenet": "MobileNet",
     "dmobilenet": "MobileNet-D",
     "efficientnet": "EfficientNet",
-    "vmamba": "VMamba",
-    "dvmamba": "VMamba-D",
+    "defficientnet": "EfficientNet-D",
+    "vmamba": "Vim",
+    "dvmamba": "Vim-D",
     "unet": "UNet",
+    "dunet": "UNet-D",
     "retfound_finetune": "RETFound",
     "tinyvit": "TinyViT",
     "dtinyvit": "TinyViT-D",
@@ -83,18 +85,21 @@ MODEL_ORDER = [
     "MobileNet",
     "MobileNet-D",
     "EfficientNet",
+    "EfficientNet-D",
     "UNet",
-    "VMamba",
-    "VMamba-D",
+    "UNet-D",
+    "Vim",
+    "Vim-D",
     "TinyViT",
     "TinyViT-D",
     "RETFound",
 ]
 
 # The proposed method, highlighted in the CD diagram by default.
-DEFAULT_HIGHLIGHT = ["VMamba-D"]
+DEFAULT_HIGHLIGHT = []
 
 POSTHOC_LABELS = {"nemenyi": "Nemenyi", "holm": "Wilcoxon-Holm"}
+FONT_SIZE = 20
 
 
 # --------------------------------------------------------------------------- #
@@ -324,13 +329,24 @@ def make_plot(
     if unknown:
         print(f"[!] Ignoring highlight models absent from the data: {unknown}")
 
-    return plot_cd_diagram(
+    fig = plot_cd_diagram(
         data=data,
         summary=summary,
         title=title,
         figsize=figsize,
         highlight_models=present or None,
     )
+
+    # Best rank on the right: flip the axis and mirror the label alignment.
+    ax = fig.axes[0]
+    ax.invert_xaxis()
+    mirror = {"left": "right", "right": "left"}
+    for text in ax.texts:
+        text.set_horizontalalignment(mirror.get(text.get_horizontalalignment(), "center"))
+        text.set_fontsize(FONT_SIZE)
+    ax.title.set_fontsize(FONT_SIZE)
+    fig.tight_layout()
+    return fig
 
 
 # --------------------------------------------------------------------------- #
@@ -381,7 +397,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--figsize",
         nargs=2,
         type=float,
-        default=(12.0, 5.0),
+        default=(14.0, 9.0),
         metavar=("W", "H"),
         help="Figure size in inches.",
     )

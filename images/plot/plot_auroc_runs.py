@@ -14,9 +14,11 @@ DEFAULT_OUTPUT = ROOT / "images" / "auroc_runs"
 MODE_TO_MODEL = {
     "mobilenet": "MobileNet",
     "efficientnet": "EfficientNet",
-    "vmamba": "VMamba",
-    "dvmamba": "VMamba-D",
+    "defficientnet": "EfficientNet-D",
+    "vmamba": "Vim",
+    "dvmamba": "Vim-D",
     "unet": "UNet",
+    "dunet": "UNet-D",
     "retfound_finetune": "RETFound",
     "tinyvit": "TinyViT",
     "dtinyvit": "TinyViT-D",
@@ -26,9 +28,11 @@ MODEL_ORDER = [
     "MobileNet",
     "MobileNet-D",
     "EfficientNet",
+    "EfficientNet-D",
     "UNet",
-    "VMamba",
-    "VMamba-D",
+    "UNet-D",
+    "Vim",
+    "Vim-D",
     "TinyViT",
     "TinyViT-D",
     "RETFound",
@@ -37,9 +41,11 @@ MODEL_COLORS = {
     "MobileNet": "#D81B60",
     "MobileNet-D": "#D81B60",
     "EfficientNet": "#97D6CC",
+    "EfficientNet-D": "#97D6CC",
     "UNet": "#374D1F",
-    "VMamba": "#1E88E5",
-    "VMamba-D": "#1E88E5",
+    "UNet-D": "#374D1F",
+    "Vim": "#1E88E5",
+    "Vim-D": "#1E88E5",
     "TinyViT": "#FFC107",
     "TinyViT-D": "#FFC107",
     "RETFound": "#F80BD1",
@@ -146,11 +152,11 @@ def add_model_bars(fig, summary, data, *, row=None, col=None):
         fig.add_trace(scatter_trace)
         fig.update_xaxes(
             categoryorder="array", categoryarray=labels, tickangle=-25,
-            tickfont_size=18, showline=True, linewidth=1.5, linecolor="black"
+            tickfont_size=20, showline=True, linewidth=1.5, linecolor="black"
         )
         fig.update_yaxes(
             title_text="AUROC", range=[0, 1.05], dtick=0.2, # Y-axis starts at 0.5 to match reference visual
-            tickfont_size=18, title_font_size=20,
+            tickfont_size=20, title_font_size=20,
             showline=True, linewidth=1.5, linecolor="black"
         )
     else:
@@ -158,11 +164,11 @@ def add_model_bars(fig, summary, data, *, row=None, col=None):
         fig.add_trace(scatter_trace, row=row, col=col)
         fig.update_xaxes(
             categoryorder="array", categoryarray=labels, tickangle=-45, 
-            tickfont_size=16, showline=True, linewidth=1.5, linecolor="black", row=row, col=col
+            tickfont_size=20, showline=True, linewidth=1.5, linecolor="black", row=row, col=col
         )
         fig.update_yaxes(
             title_text="AUROC", range=[0.0, 1.05], dtick=0.2, 
-            tickfont_size=16, title_font_size=20,
+            tickfont_size=20, title_font_size=20,
             showline=True, linewidth=1.5, linecolor="black", row=row, col=col
         )
 
@@ -237,7 +243,7 @@ def make_combined_chart(runs, output_dir):
         paper_bgcolor="white",
         font={"family": "Arial, sans-serif", "size": 18, "color": "black"},
     )
-    fig.update_annotations(font_size=40)
+    fig.update_annotations(font_size=25)
     # png_path = output_dir / "auroc_mean_all_datasets.png"
     pdf_path = output_dir / "auroc_mean_all_datasets.pdf"
     
