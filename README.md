@@ -3,7 +3,7 @@
 </p>
 
 # CAMEL: Cross-Architecture Masked Embedding Learning
-
+## Previously called LEMUR: A Ultra-Lightweight Distilled Retinal Foundation Model Using Mamba
 CAMEL distills the RETFound retinal foundation model (teacher) into ultra-lightweight students of different architectures (VMamba/Vim, TinyViT, MobileNet, EfficientNet, UNet), then trains a classification head on the distilled backbone for retinal fundus grading. The repository contains the full pipeline: distillation, head training (with optional pruning and quantization), baselines, RETFound fine-tuning, evaluation and efficiency benchmarking.
 
 Supported datasets: IDRiD, APTOS, mBRSET, Messidor, PAPILA (set the data paths in `config/constants.py` or via environment variables / `.env`).
@@ -194,3 +194,8 @@ python utils/benchmark_inference.py --granularity checkpoint --device cuda --co2
 ```
 
 Useful flags: `--granularity {mode,dataset,checkpoint}`, `--mode <name>` (repeatable), `--batch-size`, `--throughput-batch`, `--runs`, `--warmup`, `--threads`, `--output`. Distilled (`-D`) models are benchmarked pruned + int8-quantized on CPU unless `--no-compress` is given; results are written to `results/inference_time.csv`.
+
+
+<p align="center">
+  <img src="images/camel_big.png" alt="camel_big" width="320">
+</p>
